@@ -7,6 +7,6 @@ export interface User {
 }
 
 export const UserAPI = {
-  getUser: (id: number): Promise<User> =>
-    api.get<User>(`/user/${id}`).then((response: AxiosResponse<User>) => response.data)
+  getUserById: (id: number): Promise<User> =>
+    api.get<User>(`/users/${id}`).then((response: AxiosResponse<User>) => response.data)
 }

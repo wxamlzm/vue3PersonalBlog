@@ -9,7 +9,7 @@ const user = ref<User[]>([])
 
 onMounted(async () => {
   try {
-    console.log(await UserAPI.getUser(1))
+    console.log(await UserAPI.getUserById(1))
   } catch (error) {
     console.error('failed to fecth user', error)
   }
