@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import TheWelcome from '../components/TheWelcome.vue'
-
 import { ref, onMounted } from 'vue'
 import { UserAPI } from '@/api/user'
 import type { User } from '@/api/user'
@@ -17,7 +15,5 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+  <main></main>
 </template>
