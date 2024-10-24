@@ -33,8 +33,8 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
         '/api': {
           // 使用环境变量
           target: env.VITE_API_SERVER_URL,
-          changeOrigin: true,
-          rewrite: path => path.replace(/^\/api/, '')
+          changeOrigin: true
+          // rewrite: path => path.replace(/^\/api/, '')
         }
       }
     },

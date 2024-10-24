@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { UserAPI } from '@/api/user'
-import type { User } from '@/api/user'
-
-const user = ref<User[]>([])
+import { ref, onMounted, reactive } from 'vue'
+import { authAPI } from '@/api/auth'
+import SHA256 from 'crypto-js/sha256'
 
 onMounted(async () => {
   try {
-    console.log(await UserAPI.getUserById(1))
+    // 对密码进行SHA256加密
+    const hashedPassword = SHA256('admin').toString()
+
+    console.log(hashedPassword)
+
+    console.log(await authAPI.login({ username: 'admin', password: hashedPassword }))
   } catch (error) {
     console.error('failed to fecth user', error)
   }
@@ -15,5 +18,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main></main>
+  <div>home-view</div>
 </template>
+
+<style lang="css"></style>
