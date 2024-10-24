@@ -84,29 +84,48 @@ const user = ref<User[]>([])
 </script>
 
 <template>
-  <el-form
-    ref="ruleFormRef"
-    style="max-width: 600px"
-    :model="ruleForm"
-    status-icon
-    :rules="rules"
-    label-width="auto"
-    class="home-view"
-  >
-    <el-form-item label="Password" prop="pass">
-      <el-input v-model="ruleForm.pass" type="password" autocomplete="off" />
-    </el-form-item>
-    <el-form-item label="Confirm" prop="checkPass">
-      <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off" />
-    </el-form-item>
-    <el-form-item label="Age" prop="age">
-      <el-input v-model.number="ruleForm.age" />
-    </el-form-item>
-    <el-form-item>
-      <el-button type="primary" @click="submitForm(ruleFormRef)"> Submit </el-button>
-      <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
-    </el-form-item>
-  </el-form>
+  <div class="login-page">
+    <div class="form-panel">
+      <el-form
+        ref="ruleFormRef"
+        style="max-width: 600px"
+        :model="ruleForm"
+        status-icon
+        :rules="rules"
+        label-width="auto"
+        class="home-view"
+      >
+        <el-form-item label="Password" prop="pass">
+          <el-input v-model="ruleForm.pass" type="password" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="Confirm" prop="checkPass">
+          <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off" />
+        </el-form-item>
+        <el-form-item label="Age" prop="age">
+          <el-input v-model.number="ruleForm.age" />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="submitForm(ruleFormRef)"> Submit </el-button>
+          <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+  </div>
 </template>
 
-<style lang="css"></style>
+<style lang="scss">
+.login-page {
+  height: 100%;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .form-panel {
+    border: 1px solid black;
+    padding: 20px;
+    border-radius: 8px;
+  }
+}
+</style>
