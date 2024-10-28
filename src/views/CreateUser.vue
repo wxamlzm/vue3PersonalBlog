@@ -35,8 +35,13 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
+import type { FormInstance } from 'element-plus'
+import { authAPI } from '@/api/auth'
 
-const formRef = ref(null)
+const formRef = ref<FormInstance>()
+const router = useRouter()
+const loading = ref(false)
 
 const createUserForm = reactive({
   username: '',
@@ -44,9 +49,37 @@ const createUserForm = reactive({
   confirmPassword: ''
 })
 
+// 密码验证器
+const validatePassword = (rule: any, value: string, callback: Function) => {
+  if (value === '') {
+    callback(new Error('请输入密码'))
+  } else {
+    // 当密码发生变化时，重新验证密码
+    if (createUserForm.confirmPassword !== '') {
+      if (formRef.value) {
+        formRef.value.validateField('confirmPassword')
+      }
+    }
+
+    callback()
+  }
+}
+
+// 确认密码验证器
+const validateConfirmPassword = (rule: any, value: string, callback: Function) => {
+  if (value === '') {
+    callback(new Error('请再次输入密码'))
+  } else if (value !== createUserForm.password) {
+    callback(new Error('两次输入密码不一致'))
+  } else {
+    callback()
+  }
+}
+
 const createUserRules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
+  password: [{ validator: validatePassword, trigger: 'blur' }],
+  confirmPassword: [{ validator: validateConfirmPassword, trigger: 'blur' }]
 }
 
 const submitForm = async () => {
@@ -54,11 +87,25 @@ const submitForm = async () => {
 
   try {
     await formRef.value.validate()
+    loading.value = true
+    await authAPI.register({
+      username: createUserForm.username,
+      password: createUserForm.password
+    })
+
     // 注册逻辑
     ElMessage.success('注册成功！')
     // 可以在这里添加路由跳转等逻辑
-  } catch (error) {
-    console.log('表单验证失败', error)
+  } catch (error: any) {
+    if (error.reponse?.data?.message) {
+      ElMessage.error(error.response.data.message)
+    } else if (error.message) {
+      ElMessage.error(error.message)
+    } else {
+      ElMessage.error('注册失败，请稍后重试')
+    }
+  } finally {
+    loading.value = false
   }
 }
 </script>
