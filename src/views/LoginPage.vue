@@ -1,131 +1,74 @@
+<template>
+  <div class="register-container">
+    <el-card class="register-card">
+      <template #card>
+        <div class="card-header">
+          <h2>用户登录</h2>
+        </div>
+      </template>
+
+      <el-form
+        ref="formRef"
+        :model="loginForm"
+        :rules="loginFormRules"
+        label-position="top"
+        size="large"
+      >
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="loginForm.username"> </el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="loginForm.password" type="password"> </el-input>
+        </el-form-item>
+
+        <el-form-item>
+          <el-button type="primary" @click="submitForm" class="submit-btn"> 注册 </el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
 import { UserAPI } from '@/api/user'
 import type { User } from '@/api/user'
-import type { FormInstance, FormRules } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { authAPI } from '@/api/auth'
 
-const ruleFormRef = ref<FormInstance>()
-
-const checkAge = (rule: any, value: any, callback: any) => {
-  if (!value) {
-    return callback(new Error('Please input the age'))
-  }
-  setTimeout(() => {
-    if (!Number.isInteger(value)) {
-      callback(new Error('Please input digits'))
-    } else {
-      if (value < 18) {
-        callback(new Error('Age must be greater than 18'))
-      } else {
-        callback()
-      }
-    }
-  }, 1000)
-}
-
-const validatePass = (rule: any, value: any, callback: any) => {
-  if (value === '') {
-    callback(new Error('Please input the password'))
-  } else {
-    if (ruleForm.checkPass !== '') {
-      if (!ruleFormRef.value) return
-      ruleFormRef.value.validateField('checkPass')
-    }
-    callback()
-  }
-}
-const validatePass2 = (rule: any, value: any, callback: any) => {
-  if (value === '') {
-    callback(new Error('Please input the password again'))
-  } else if (value !== ruleForm.pass) {
-    callback(new Error("Two inputs don't match!"))
-  } else {
-    callback()
-  }
-}
-
-const ruleForm = reactive({
-  pass: '',
-  checkPass: '',
-  age: ''
+const formRef = ref<FormInstance>()
+let loading = ref(false)
+const loginForm = reactive({
+  username: '',
+  password: ''
 })
 
-const rules = reactive<FormRules<typeof ruleForm>>({
-  pass: [{ validator: validatePass, trigger: 'blur' }],
-  checkPass: [{ validator: validatePass2, trigger: 'blur' }],
-  age: [{ validator: checkAge, trigger: 'blur' }]
+const loginFormRules = reactive({
+  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  password: [{ required: true, message: '请输入密码', trigger: 'blur' }]
 })
 
-const submitForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  formEl.validate(valid => {
-    if (valid) {
-      console.log('submit!')
+const submitForm = async () => {
+  if (!formRef.value) return
+
+  try {
+    await formRef.value.validate()
+    loading.value = true
+    await authAPI.login({
+      username: loginForm.username,
+      password: loginForm.password
+    })
+    ElMessage.success('登录成功')
+  } catch (error: any) {
+    if (error.response?.data.message) {
+      ElMessage.error(error.response.data.message)
+    } else if (error.message) {
+      ElMessage.error(error.message)
     } else {
-      console.log('error submit!')
+      ElMessage.error('注册失败，请稍后重试')
     }
-  })
+  } finally {
+    loading.value = false
+  }
 }
-
-const resetForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  formEl.resetFields()
-}
-
-const user = ref<User[]>([])
-
-// onMounted(async () => {
-//   try {
-//     console.log(await UserAPI.getUserById(1))
-//   } catch (error) {
-//     console.error('failed to fecth user', error)
-//   }
-// })
 </script>
-
-<template>
-  <div class="login-page">
-    <div class="form-panel">
-      <el-form
-        ref="ruleFormRef"
-        style="max-width: 600px"
-        :model="ruleForm"
-        status-icon
-        :rules="rules"
-        label-width="auto"
-        class="home-view"
-      >
-        <el-form-item label="Password" prop="pass">
-          <el-input v-model="ruleForm.pass" type="password" autocomplete="off" />
-        </el-form-item>
-        <el-form-item label="Confirm" prop="checkPass">
-          <el-input v-model="ruleForm.checkPass" type="password" autocomplete="off" />
-        </el-form-item>
-        <el-form-item label="Age" prop="age">
-          <el-input v-model.number="ruleForm.age" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="submitForm(ruleFormRef)"> Submit </el-button>
-          <el-button @click="resetForm(ruleFormRef)">Reset</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
-  </div>
-</template>
-
-<style lang="scss">
-.login-page {
-  height: 100%;
-  width: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  .form-panel {
-    border: 1px solid black;
-    padding: 20px;
-    border-radius: 8px;
-  }
-}
-</style>
