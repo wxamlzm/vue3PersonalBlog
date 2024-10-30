@@ -22,7 +22,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="submitForm" class="submit-btn"> 注册 </el-button>
+          <el-button type="primary" @click="submitForm" class="submit-btn"> 登录 </el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -35,8 +35,11 @@ import { UserAPI } from '@/api/user'
 import type { User } from '@/api/user'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { authAPI } from '@/api/auth'
+import { useRouter } from 'vue-router'
 
 const formRef = ref<FormInstance>()
+const router = useRouter()
+
 let loading = ref(false)
 const loginForm = reactive({
   username: '',
@@ -58,7 +61,7 @@ const submitForm = async () => {
       username: loginForm.username,
       password: loginForm.password
     })
-    ElMessage.success('登录成功')
+    router.push('/')
   } catch (error: any) {
     if (error.response?.data.message) {
       ElMessage.error(error.response.data.message)
