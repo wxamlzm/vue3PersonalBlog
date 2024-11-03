@@ -66,17 +66,7 @@ export function setupInterceptors (instance: AxiosInstance): void {
 
         switch (status) {
           case 401: {
-            // 清除用户信息
-            const userStore = useUserStore()
-            userStore.logout()
-            // 跳转登录页
-            router.push({
-              path: '/login',
-              query: {
-                redirect: router.currentRoute.value.fullPath
-              }
-            })
-            ElMessage.error('登录已过期，请重新登录')
+            handleUnauthorized()
             break
           }
           case 403:
@@ -89,7 +79,7 @@ export function setupInterceptors (instance: AxiosInstance): void {
             ElMessage.error('服务器错误')
             break
           default:
-            ElMessage.error(error.response.data?.message || '未知错误')
+            ElMessage.error(data?.message || '未知错误')
         }
       } else if (error.request) {
         ElMessage.error('网络错误，请检查网络连接')
@@ -100,4 +90,28 @@ export function setupInterceptors (instance: AxiosInstance): void {
       return Promise.reject(error)
     }
   )
+}
+
+/**
+ * 处理未授权（401）的情况
+ */
+function handleUnauthorized (): void {
+  try {
+    const userStore = useUserStore()
+    userStore.logout()
+
+    // 保存当前路由，登录后可以重新定向回来
+    const currentPath = router.currentRoute.value.fullPath
+
+    router.push({
+      path: '/login',
+      query: {
+        redirect: currentPath
+      }
+    })
+
+    ElMessage.error('登录已过期，请重新登录')
+  } catch (error) {
+    console.error('处理未授权错误失败：', error)
+  }
 }
